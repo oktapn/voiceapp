@@ -1,21 +1,41 @@
 package com.example.appvoice;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.UnderlineSpan;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import com.voxeet.android.media.MediaStream;
+import com.voxeet.android.media.MediaStreamType;
+import com.voxeet.promise.solve.ErrorPromise;
+import com.voxeet.promise.solve.ThenPromise;
 import com.voxeet.sdk.VoxeetSdk;
-import com.voxeet.sdk.json.UserInfo;
+import com.voxeet.sdk.events.v2.ParticipantAddedEvent;
+import com.voxeet.sdk.events.v2.ParticipantUpdatedEvent;
+import com.voxeet.sdk.events.v2.StreamAddedEvent;
+import com.voxeet.sdk.events.v2.StreamRemovedEvent;
+import com.voxeet.sdk.events.v2.StreamUpdatedEvent;
+import com.voxeet.sdk.json.ParticipantInfo;
 import com.voxeet.sdk.models.Conference;
+import com.voxeet.sdk.models.Participant;
 import com.voxeet.sdk.models.v1.CreateConferenceResult;
 import com.voxeet.sdk.services.conference.information.ConferenceInformation;
+import com.voxeet.sdk.views.VideoView;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,24 +43,36 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import eu.codlab.simplepromise.solve.ErrorPromise;
-import eu.codlab.simplepromise.solve.PromiseExec;
 
 public class MainActivity extends AppCompatActivity {
 
-    @Bind(R.id.user_name)
-    EditText TVUsername;
+    @NonNull
+    protected List<View> views = new ArrayList<>();
 
+    @NonNull
+    protected List<View> buttonsNotLoggedIn = new ArrayList<>();
+
+    @NonNull
+    protected List<View> buttonsInConference = new ArrayList<>();
+
+    @NonNull
+    protected List<View> buttonsNotInConference = new ArrayList<>();
+
+    @NonNull
     @Bind(R.id.conference_name)
     EditText conference_name;
 
-    protected List<View> views = new ArrayList<>();
+    @Bind(R.id.user_name)
+    EditText user_name;
 
-    protected List<View> buttonsNotLoggedIn = new ArrayList<>();
+    @Bind(R.id.video)
+    protected VideoView video;
 
-    protected List<View> buttonsInConference = new ArrayList<>();
+    @Bind(R.id.videoOther)
+    protected VideoView videoOther;
 
-    protected List<View> buttonsNotInConference = new ArrayList<>();
+    @Bind(R.id.participants)
+    EditText participants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +80,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        //we now initialize the sdk
-        VoxeetSdk.initialize("ODIyZWc1YjZhOHZs", "ODIyZWc1YjZhOHZs");
+        VoxeetSdk.initialize("ODIyZWc1YjZhOHZs", "ODdidXQ4amxpOWd1Z2p0azk4cHU2bjE0Zg==");
 
+        //adding the user_name, login and logout views related to the open/close and conference flow
         add(views, R.id.login);
         add(views, R.id.logout);
 
@@ -61,35 +93,37 @@ public class MainActivity extends AppCompatActivity {
 
         add(buttonsNotInConference, R.id.logout);
 
-        //we add the join button to let it enable only when not in a conference
         add(views, R.id.join);
 
         add(buttonsNotInConference, R.id.join);
 
-        //we add the leave button to be available while in conference
         add(views, R.id.leave);
 
         add(buttonsInConference, R.id.leave);
     }
 
+    @Override
     protected void onResume() {
         super.onResume();
 
-        //here will be put the permission check
-
-        //we update the various views to enable or disable the ones we want to
         updateViews();
-
-        VoxeetSdk.instance().register(this);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
                 ||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO, Manifest.permission.CAMERA}, 0x20);
         }
+
+        VoxeetSdk.instance().register(this);
+    }
+
+    private MainActivity add(List<View> list, int id) {
+        list.add(findViewById(id));
+        return this;
     }
 
     private void updateViews() {
+        //this method will be updated step by step
         //disable every views
         setEnabled(views, false);
 
@@ -103,21 +137,9 @@ public class MainActivity extends AppCompatActivity {
         //we can now add the logic to manage our basic state
         if (null != current && VoxeetSdk.conference().isLive()) {
             setEnabled(buttonsInConference, true);
-        }
-
-        //we can now add the logic to manage our basic state
-        if (null != current && VoxeetSdk.conference().isLive()) {
-            setEnabled(buttonsInConference, true);
         } else {
             setEnabled(buttonsNotInConference, true);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //register the current activity in the SDK
-        VoxeetSdk.instance().unregister(this);
     }
 
     private ErrorPromise error() {
@@ -128,18 +150,13 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
-    private void setEnabled(List<View> views, boolean enabled) {
+    private void setEnabled(@NonNull List<View> views, boolean enabled) {
         for (View view : views) view.setEnabled(enabled);
-    }
-
-    private MainActivity add(List<View> list, int id) {
-        list.add(findViewById(id));
-        return this;
     }
 
     @OnClick(R.id.login)
     public void onLogin() {
-        VoxeetSdk.session().open(new UserInfo(TVUsername.getText().toString(), "", ""))
+        VoxeetSdk.session().open(new ParticipantInfo(user_name.getText().toString(), "", ""))
                 .then((result, solver) -> {
                     Toast.makeText(MainActivity.this, "started...", Toast.LENGTH_SHORT).show();
                     updateViews();
@@ -159,9 +176,8 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.join)
     public void onJoin() {
         VoxeetSdk.conference().create(conference_name.getText().toString())
-                .then((PromiseExec<CreateConferenceResult, Conference>) (result, solver) ->
-                        solver.resolve(VoxeetSdk.conference().join(result.conferenceId)))
-                .then((result, solver) -> {
+                .then((ThenPromise<CreateConferenceResult, Conference>) res -> VoxeetSdk.conference().join(res.conferenceId))
+                .then(conference -> {
                     Toast.makeText(MainActivity.this, "started...", Toast.LENGTH_SHORT).show();
                     updateViews();
                 })
@@ -172,5 +188,82 @@ public class MainActivity extends AppCompatActivity {
     public void onLeave() {
         VoxeetSdk.conference().leave()
                 .then((result, solver) -> updateViews()).error(error());
+    }
+
+    @OnClick(R.id.startVideo)
+    public void onStartVideo() {
+        VoxeetSdk.conference().startVideo()
+                .then((result, solver) -> updateViews())
+                .error(error());
+    }
+
+    @OnClick(R.id.stopVideo)
+    public void onStopVideo() {
+        VoxeetSdk.conference().stopVideo()
+                .then((result, solver) -> updateViews())
+                .error(error());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StreamAddedEvent event) {
+        updateStreams();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StreamUpdatedEvent event) {
+        updateStreams();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(StreamRemovedEvent event) {
+        updateStreams();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ParticipantAddedEvent event) {
+        updateUsers();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEvent(ParticipantUpdatedEvent event) {
+        updateUsers();
+    }
+
+    private void updateStreams() {
+        for (Participant user : VoxeetSdk.conference().getParticipants()) {
+            boolean isLocal = user.getId().equals(VoxeetSdk.session().getParticipantId());
+            MediaStream stream = user.streamsHandler().getFirst(MediaStreamType.Camera);
+
+            VideoView video = isLocal ? this.video : this.videoOther;
+
+            if (null != stream && !stream.videoTracks().isEmpty()) {
+                video.setVisibility(View.VISIBLE);
+                video.attach(user.getId(), stream);
+            }
+        }
+    }
+
+    public void updateUsers() {
+        List<Participant> participants = VoxeetSdk.conference().getParticipants();
+        List<String> names = new ArrayList<>();
+
+
+        for (Participant participant : participants) {
+            names.add(participant.getInfo().getName());
+        }
+
+        this.participants.setText(TextUtils.join(",", names));
+    }
+
+    @OnClick(R.id.LinkGitHub)
+    public void openGithublink(){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/oktapn"));
+        startActivity(browserIntent);
+    }
+
+    @OnClick(R.id.LinkVoxeet)
+    public void openCredit(){
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://voxeet.com/"));
+        startActivity(browserIntent);
     }
 }

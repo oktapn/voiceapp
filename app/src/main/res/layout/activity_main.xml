@@ -9,80 +9,231 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:orientation="vertical"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" >
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
 
-        <!-- Step 1. Please put below the layout modification with the open/close session step -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="user session" />
+        <!-- the samples will be populated here -->
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/user_name"
-                android:layout_width="0dp"
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:hint="User Session">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/user_name"
+                    android:drawableRight="@drawable/ic_account_box_black_24dp"
+                    android:drawablePadding="8dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/login"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary"
                     android:text="log in" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/logout"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/colorPrimary"
                     android:text="logout" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Step 2. Please put below the layout modification with the join conference step -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="conference name :" />
-
-        <EditText
-            android:id="@+id/conference_name"
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:hint="Conference Name">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/conference_name"
+                android:drawableRight="@drawable/ic_video_call_black_24dp"
+                android:drawablePadding="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/join"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/colorPrimary"
                 android:text="start" />
 
-            <!-- Step 2.2 Below will be put the block concerning the leave functionnality -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/leave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="leave" />
+
+        </LinearLayout>
+        <!-- Please put below the layout modification with the video step -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/startVideo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="start video" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/stopVideo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="stop video" />
+
+            <!-- Below will be put the block concerning the stop video functionnality -->
+
         </LinearLayout>
 
-        <!-- Step 3. Below will be put the block concerning the leave functionnality -->
-        <Button
-            android:id="@+id/leave"
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:hint="Participant">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/participants"
+                android:drawableRight="@drawable/ic_supervisor_account_black_24dp"
+                android:drawablePadding="8dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <com.voxeet.sdk.views.VideoView
+                    android:id="@+id/video"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <com.voxeet.sdk.views.VideoView
+                    android:id="@+id/videoOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_margin="8dp"
+            android:src="@drawable/acc" />
+
+        <TextView
+            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="leave" />
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/nama"
+            android:textColor="@android:color/black" />
+
+        <TextView
+            android:id="@+id/LinkGitHub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/github" />
+
+        <TextView
+            android:id="@+id/LinkVoxeet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/sdk_voxeet" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
