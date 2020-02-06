@@ -159,6 +159,7 @@
                 android:id="@+id/participants"
                 android:drawableRight="@drawable/ic_supervisor_account_black_24dp"
                 android:drawablePadding="8dp"
+                android:enabled="false"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
